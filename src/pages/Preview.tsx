@@ -1,100 +1,151 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getPersonalInfo } from "../services/firebaseService";
 import { getEducations } from "../services/educationService";
 import { getExperiences } from "../services/experienceService";
 import { getSkills } from "../services/skillService";
 import type { PersonalInfo, Education, Experience, Skill } from "../models/types";
+import {
+  FaEnvelope,
+  FaPhone,
+  FaLinkedin,
+  FaGithub,
+  FaGlobe,
+} from "react-icons/fa";
 
 const Preview = () => {
   const [info, setInfo] = useState<PersonalInfo | null>(null);
-  const [education, setEducation] = useState<Education[]>([]);
+  const [educations, setEducations] = useState<Education[]>([]);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedInfo = await getPersonalInfo();
-      const fetchedEducation = await getEducations();
-      const fetchedExperiences = await getExperiences();
-      const fetchedSkills = await getSkills();
-
-      setInfo(fetchedInfo as PersonalInfo);
-      setEducation(fetchedEducation);
-      setExperiences(fetchedExperiences);
-      setSkills(fetchedSkills);
+      const infoData = await getPersonalInfo();
+      setInfo(infoData as PersonalInfo);
+      const edu = await getEducations();
+      setEducations(edu);
+      const exp = await getExperiences();
+      setExperiences(exp);
+      const sk = await getSkills();
+      setSkills(sk);
     };
-
     fetchData();
   }, []);
 
-  if (!info) return <div className="text-center py-10">Chargement du CV...</div>;
+  if (!info) return <div>Chargement...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center py-10">
-      <div className="bg-white w-[210mm] h-[297mm] shadow-lg p-10 text-gray-800 overflow-auto rounded">
-        {/* Photo et titre */}
-        <div className="flex flex-col items-center mb-6">
+    <div className="min-h-screen bg-gray-100 p-8 print:bg-white print:p-0">
+      <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg rounded-md print:shadow-none print:rounded-none print:p-6">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b pb-4">
+          {/* Left: Name + Title */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">{info.fullName}</h1>
+            <h2 className="text-xl text-gray-600">{info.title}</h2>
+
+            {/* Contact Info Horizontale */}
+            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-700">
+              {info.github && (
+                <div className="flex items-center gap-1">
+                  <FaGithub className="text-gray-500" />
+                  <span>{info.github}</span>
+                </div>
+              )}
+              {info.linkedin && (
+                <div className="flex items-center gap-1">
+                  <FaLinkedin className="text-blue-600" />
+                  <span>{info.linkedin}</span>
+                </div>
+              )}
+              {info.website && (
+                <div className="flex items-center gap-1">
+                  <FaGlobe className="text-green-600" />
+                  <span>{info.website}</span>
+                </div>
+              )}
+              {info.email && (
+                <div className="flex items-center gap-1">
+                  <FaEnvelope className="text-red-500" />
+                  <span>{info.email}</span>
+                </div>
+              )}
+              {info.phone && (
+                <div className="flex items-center gap-1">
+                  <FaPhone className="text-gray-500" />
+                  <span>{info.phone}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Profile photo */}
           {info.photoURL && (
             <img
               src={info.photoURL}
-              alt="Profil"
-              className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-4"
+              alt="Photo de profil"
+              className="w-28 h-28 object-cover rounded-full border-2 border-gray-300"
             />
           )}
-          <h1 className="text-3xl font-bold">{info.fullName}</h1>
-          <h2 className="text-xl text-gray-600">{info.title}</h2>
         </div>
 
-        {/* Contact */}
-        <div className="text-center text-sm mb-8">
-          <p>{info.email}</p>
-          <p>{info.phone}</p>
-          <p>{info.address}</p>
-        </div>
-
-        {/* Expériences */}
-        {experiences.length > 0 && (
-          <section className="mb-6">
-            <h3 className="text-xl font-semibold border-b pb-1 mb-2">Expériences</h3>
-            {experiences.map((exp) => (
-              <div key={exp.id} className="mb-2">
-                <p className="font-bold">{exp.position} — {exp.company}</p>
-                <p className="text-sm text-gray-600">{exp.startDate} → {exp.endDate}</p>
-                <p className="text-sm">{exp.description}</p>
+        {/* Two-column layout */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* LEFT COLUMN: SKILLS & EDUCATION */}
+          <div className="space-y-6 col-span-1">
+            {/* Skills */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">Compétences</h3>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill) => (
+                  <span
+                    key={skill.id}
+                    className="bg-gray-200 text-sm px-3 py-1 rounded-full"
+                  >
+                    {skill.name}
+                  </span>
+                ))}
               </div>
-            ))}
-          </section>
-        )}
-
-        {/* Formation */}
-        {education.length > 0 && (
-          <section className="mb-6">
-            <h3 className="text-xl font-semibold border-b pb-1 mb-2">Diplômes & Certifications</h3>
-            {education.map((edu) => (
-              <div key={edu.id} className="mb-2">
-                <p className="font-bold">{edu.title} — {edu.institution}</p>
-                <p className="text-sm text-gray-600">{edu.startDate} → {edu.endDate}</p>
-              </div>
-            ))}
-          </section>
-        )}
-
-        {/* Compétences */}
-        {skills.length > 0 && (
-          <section className="mb-4">
-            <h3 className="text-xl font-semibold border-b pb-1 mb-2">Compétences</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill) => (
-                <span
-                  key={skill.id}
-                  className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                >
-                  {skill.name}
-                </span>
-              ))}
             </div>
-          </section>
-        )}
+
+            {/* Education */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">Formations</h3>
+              <ul className="space-y-2 text-sm">
+                {educations.map((edu) => (
+                  <li key={edu.id}>
+                    <p className="font-semibold">{edu.title}</p>
+                    <p className="text-gray-600">{edu.institution}</p>
+                    <p className="text-gray-500 text-xs">
+                      {edu.startDate} - {edu.endDate}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: EXPERIENCES */}
+          <div className="space-y-6 col-span-2">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">Expériences Professionnelles</h3>
+              <ul className="space-y-4 text-sm">
+                {experiences.map((exp) => (
+                  <li key={exp.id}>
+                    <p className="font-semibold">{exp.position}</p>
+                    <p className="text-gray-600">{exp.company}</p>
+                    <p className="text-gray-500 text-xs">
+                      {exp.startDate} - {exp.endDate}
+                    </p>
+                    {exp.description && (
+                      <p className="mt-1 text-gray-700 text-sm">{exp.description}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
