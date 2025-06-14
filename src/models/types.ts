@@ -26,3 +26,9 @@ export interface Experience {
   endDate: string;
   description?: string;
 }
+export interface Skill {
+  id?: string;
+  name: string;
+  
+}
+

@@ -7,6 +7,7 @@ const sections = [
   { name: "Skills", path: "/skills" },
   { name: "Experiences", path: "/experiences" },
   { name: "Education", path: "/education" },
+  { name: "Aperçu", path: "/preview" },
 ];
 
 export default function Sidebar() {

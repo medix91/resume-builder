@@ -1,9 +1,12 @@
 
+import SkillsForm from "../components/SkillsForm";
 
 const Skills = () => {
   return (
-    <div>Skills</div>
-  )
-}
+    <div className="ml-52 p-6">
+      <SkillsForm />
+    </div>
+  );
+};
 
-export default Skills
+export default Skills;
