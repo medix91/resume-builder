@@ -1,6 +1,8 @@
 
 import { NavLink } from "react-router-dom";
-
+import {
+  FaEnvelope,
+} from "react-icons/fa";
 const sections = [
   { name: "Home", path: "/" },
   { name: "Profile", path: "/profile" },
@@ -12,7 +14,7 @@ const sections = [
 
 export default function Sidebar() {
   return (
-    <aside className="fixed left-0 top-0 h-full w-48 bg-gray-100 dark:bg-gray-800 p-4 flex flex-col gap-4">
+    <aside className="fixed left-0 top-0 h-full w-48 bg-blue-100 dark:bg-gray-800 p-4 flex flex-col gap-4">
       {sections.map(({ name, path }) => (
         <NavLink
           key={name}
@@ -20,7 +22,7 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `py-2 px-3 rounded ${
               isActive
-                ? "bg-blue-500 text-white"
+                ? "bg-blue-600 text-white"
                 : "hover:bg-blue-200 dark:hover:bg-gray-700"
             }`
           }

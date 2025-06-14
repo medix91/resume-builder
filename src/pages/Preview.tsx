@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { getPersonalInfo } from "../services/firebaseService";
 import { getEducations } from "../services/educationService";
 import { getExperiences } from "../services/experienceService";
 import { getSkills } from "../services/skillService";
 import type { PersonalInfo, Education, Experience, Skill } from "../models/types";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import {
   FaEnvelope,
   FaPhone,
@@ -17,6 +19,8 @@ const Preview = () => {
   const [educations, setEducations] = useState<Education[]>([]);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
+
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,11 +36,38 @@ const Preview = () => {
     fetchData();
   }, []);
 
+  const generatePDF = async () => {
+    if (!previewRef.current) return;
+
+    // On capture le contenu au format canvas avec une bonne résolution
+    const canvas = await html2canvas(previewRef.current, {
+      scale: 2,
+      useCORS: true,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("portrait", "pt", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    // Calculer la hauteur de l'image dans le PDF en gardant le ratio
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight);
+    pdf.save("cv.pdf");
+  };
+
   if (!info) return <div>Chargement...</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 p-8 print:bg-white print:p-0">
-      <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg rounded-md print:shadow-none print:rounded-none print:p-6">
+      <div
+        ref={previewRef}
+        className="max-w-4xl mx-auto bg-white p-8 shadow-lg rounded-md print:shadow-none print:rounded-none print:p-6"
+        style={{ minHeight: "1122px" }} // hauteur A4 approx 794pt = 1122px à 96dpi
+      >
         {/* Header */}
         <div className="flex justify-between items-start border-b pb-4">
           {/* Left: Name + Title */}
@@ -95,7 +126,9 @@ const Preview = () => {
           <div className="space-y-6 col-span-1">
             {/* Skills */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">Compétences</h3>
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">
+                Compétences
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill) => (
                   <span
@@ -110,7 +143,9 @@ const Preview = () => {
 
             {/* Education */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">Formations</h3>
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">
+                Formations
+              </h3>
               <ul className="space-y-2 text-sm">
                 {educations.map((edu) => (
                   <li key={edu.id}>
@@ -128,7 +163,9 @@ const Preview = () => {
           {/* RIGHT COLUMN: EXPERIENCES */}
           <div className="space-y-6 col-span-2">
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">Expériences Professionnelles</h3>
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-1 mb-2">
+                Expériences Professionnelles
+              </h3>
               <ul className="space-y-4 text-sm">
                 {experiences.map((exp) => (
                   <li key={exp.id}>
@@ -146,6 +183,17 @@ const Preview = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Button PDF */}
+      <div className="max-w-4xl mx-auto mt-6 flex justify-end">
+        <button
+          onClick={generatePDF}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
+          type="button"
+        >
+          Télécharger PDF
+        </button>
       </div>
     </div>
   );
