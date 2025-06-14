@@ -1,18 +1,19 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import EditCV from "./pages/EditCV";
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 
+import AppRoutes from "./routes/AppRoutes";
+import Sidebar from "./components/Sidebar";
 
-function App() {
+const App: React.FC = () => (
+  <Router>
+    <div className="flex min-h-screen">
+    
+      <main className="flex-1 p-6 overflow-auto">
+        <Sidebar />
+        <AppRoutes />
+      </main>
+    </div>
+  </Router>
+);
 
-
-  return (
-       <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/edit" />} />
-        <Route path="/edit" element={<EditCV />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App
+export default App;

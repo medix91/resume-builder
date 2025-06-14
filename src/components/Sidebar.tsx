@@ -1,33 +1,32 @@
 
-
-interface SidebarProps {
-  activeSection: string;
-  onSelectSection: (section: string) => void;
-}
+import { NavLink } from "react-router-dom";
 
 const sections = [
-  "Informations",
-  "Compétences",
-  "Expériences",
-  "Langues",
-  "Hobbies",
-  "Diplômes",
-  "Aperçu",
+  { name: "Home", path: "/" },
+  { name: "Profile", path: "/profile" },
+  { name: "Skills", path: "/skills" },
+  { name: "Experiences", path: "/experiences" },
+  { name: "Education", path: "/education" },
 ];
 
-export default function Sidebar({ activeSection, onSelectSection }: SidebarProps) {
+export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-full w-48 bg-gray-100 dark:bg-gray-800 p-4 flex flex-col gap-4">
-      {sections.map((section) => (
-        <button
-          key={section}
-          onClick={() => onSelectSection(section)}
-          className={`py-2 px-3 rounded ${
-            activeSection === section ? "bg-blue-500 text-white" : "hover:bg-blue-200 dark:hover:bg-gray-700"
-          }`}
+      {sections.map(({ name, path }) => (
+        <NavLink
+          key={name}
+          to={path}
+          className={({ isActive }) =>
+            `py-2 px-3 rounded ${
+              isActive
+                ? "bg-blue-500 text-white"
+                : "hover:bg-blue-200 dark:hover:bg-gray-700"
+            }`
+          }
+          end={path === "/"} // pour que la route "/" soit active seulement sur exact match
         >
-          {section}
-        </button>
+          {name}
+        </NavLink>
       ))}
     </aside>
   );
